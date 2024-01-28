@@ -6,16 +6,17 @@ from .forms import LoginForm
 def user_login(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
-        cd = form.cleaned_data
-        user = authenticate(request, username=cd['username'], password=cd['password'])
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                HttpResponse("Auth was successful")
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(request, username=cd['username'], password=cd['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    HttpResponse("Auth was successful")
+                else:
+                    HttpResponse("Disabled user")
             else:
-                HttpResponse("Disabled user")
-        else:
-            HttpResponse("User not found")
+                HttpResponse("User not found")
     else:
         form = LoginForm()
     return render(request, 'account/login.html', {'form': form})
